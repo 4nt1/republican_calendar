@@ -1,5 +1,481 @@
-require "republican_calendar/version"
+# require "republican_calendar/version"
+require 'date'
+require 'byebug'
 
 module RepublicanCalendar
-  # Your code goes here...
+
+  def self.included(base)
+    base.extend(ClassMethods)
+  end
+
+  module ClassMethods
+
+  end
+
+  # number of days since first day of the first republic
+  def republican
+    (self - Date::Republican::DAY_ONE).to_i
+  end
+
+  def sextil?
+    [3, 7, 11, 15, 20].include?(self.year - Date::Republican::DAY_ONE.year) || self.leap?
+  end
+
+  def to_republican
+    days = self - Date::Republican::DAY_ONE
+    year = 1
+    while days >= (year_days = Date.new(year).sextil? ? 366 : 365)
+      days -= year_days
+      year +=1
+    end
+    month = 1 + days / 30
+    day = 1 + days % 30
+    Date::Republican.new(year, month, day)
+  end
+end
+
+class Date::Republican
+
+  attr_reader :gregorian_date
+
+  def initialize(year=1, month=1, day=1)
+    @day              = day
+    @month            = month
+    @year             = year
+    @gregorian_date   = Date.new(year, month, day)
+  end
+
+  def strftime
+
+  end
+
+  def +(date)
+
+  end
+
+  def -(date)
+
+  end
+
+  def to_date
+
+  end
+
+  def sextil?
+
+  end
+
+  DAY_ONE = Date.new(1792, 9, 22)
+
+  DAYS = [
+    "Raisin",
+    "Safran",
+    "Châtaigne",
+    "Colchique",
+    "Cheval",
+    "Balsamine",
+    "Carotte",
+    "Amarante",
+    "Panais",
+    "Cuve",
+    "Pomme de terre",
+    "Immortelle",
+    "Potiron",
+    "Réséda",
+    "Âne",
+    "Belle de nuit",
+    "Citrouille",
+    "Sarrasin",
+    "Tournesol",
+    "Pressoir",
+    "Chanvre",
+    "Pêche",
+    "Navet",
+    "Amaryllis",
+    "Bœuf",
+    "Aubergine",
+    "Piment",
+    "Tomate",
+    "Orge",
+    "Tonneau",
+    "Pomme",
+    "Céleri",
+    "Poire",
+    "Betterave",
+    "Oie",
+    "Héliotrope",
+    "Figue",
+    "Scorsonère",
+    "Alisier",
+    "Charrue",
+    "Salsifis",
+    "Macre",
+    "Topinambour",
+    "Endive",
+    "Dindon",
+    "Chervis",
+    "Cresson",
+    "Dentelaire",
+    "Grenade",
+    "Herse",
+    "Bacchante",
+    "Azerole",
+    "Garance",
+    "Orange",
+    "Faisan",
+    "Pistache",
+    "Macjonc",
+    "Coing",
+    "Cormier",
+    "Rouleau",
+    "Raiponce",
+    "Turneps",
+    "Chicorée",
+    "Nèfle",
+    "Cochon",
+    "Mâche",
+    "Chou-fleur",
+    "Miel",
+    "Genièvre",
+    "Pioche",
+    "Cire",
+    "Raifort",
+    "Cèdre",
+    "Sapin",
+    "Chevreuil",
+    "Ajonc",
+    "Cyprès",
+    "Lierre",
+    "Sabine",
+    "Hoyau",
+    "Érable sucré",
+    "Bruyère",
+    "Roseau",
+    "Oseille",
+    "Grillon",
+    "Pignon",
+    "Liège",
+    "Truffe",
+    "Olive",
+    "Pelle",
+    "Tourbe",
+    "Houille",
+    "Bitume",
+    "Soufre",
+    "Chien",
+    "Lave",
+    "Terre végétale",
+    "Fumier",
+    "Salpêtre",
+    "Fléau",
+    "Granit",
+    "Argile",
+    "Ardoise",
+    "Grès",
+    "Lapin",
+    "Silex",
+    "Marne",
+    "Pierre à chaux",
+    "Marbre",
+    "Van",
+    "Pierre à plâtre",
+    "Sel",
+    "Fer",
+    "Cuivre",
+    "Chat",
+    "Étain",
+    "Plomb",
+    "Zinc",
+    "Mercure",
+    "Crible",
+    "Lauréole",
+    "Mousse",
+    "Fragon",
+    "Perce-neige",
+    "Taureau",
+    "Laurier-thym",
+    "Amadouvier",
+    "Mézéréon",
+    "Peuplier",
+    "Coignée",
+    "Ellébore",
+    "Brocoli",
+    "Laurier",
+    "Avelinier",
+    "Vache",
+    "Buis",
+    "Lichen",
+    "If",
+    "Pulmonaire",
+    "Serpette",
+    "Thlaspi",
+    "Thimelé",
+    "Chiendent",
+    "Trainasse",
+    "Lièvre",
+    "Guède",
+    "Noisetier",
+    "Cyclamen",
+    "Chélidoine",
+    "Traîneau",
+    "Tussilage",
+    "Cornouiller",
+    "Violier",
+    "Troène",
+    "Bouc",
+    "Asaret",
+    "Alaterne",
+    "Violette",
+    "Marceau",
+    "Bêche",
+    "Narcisse",
+    "Orme",
+    "Fumeterre",
+    "Vélar",
+    "Chèvre",
+    "Épinard",
+    "Doronic",
+    "Mouron",
+    "Cerfeuil",
+    "Cordeau",
+    "Mandragore",
+    "Persil",
+    "Cochléaria",
+    "Pâquerette",
+    "Thon",
+    "Pissenlit",
+    "Sylve",
+    "Capillaire",
+    "Frêne",
+    "Plantoir",
+    "Primevère",
+    "Platane",
+    "Asperge",
+    "Tulipe",
+    "Poule",
+    "Bette",
+    "Bouleau",
+    "Jonquille",
+    "Aulne",
+    "Couvoir",
+    "Pervenche",
+    "Charme",
+    "Morille",
+    "Hêtre",
+    "Abeille",
+    "Laitue",
+    "Mélèze",
+    "Ciguë",
+    "Radis",
+    "Ruche",
+    "Gainier",
+    "Romaine",
+    "Marronnier",
+    "Roquette",
+    "Pigeon",
+    "Lilas",
+    "Anémone",
+    "Pensée",
+    "Myrtille",
+    "Greffoir",
+    "Rose",
+    "Chêne",
+    "Fougère",
+    "Aubépine",
+    "Rossignol",
+    "Ancolie",
+    "Muguet",
+    "Champignon",
+    "Hyacinthe",
+    "Râteau",
+    "Rhubarbe",
+    "Sainfoin",
+    "Bâton-d’or",
+    "Chamérops",
+    "Ver à soie",
+    "Consoude",
+    "Pimprenelle",
+    "Corbeille d’or",
+    "Arroche",
+    "Sarcloir",
+    "Statice",
+    "Fritillaire",
+    "Bourrache",
+    "Valériane",
+    "Carpe",
+    "Fusain",
+    "Civette",
+    "Buglosse",
+    "Sénevé",
+    "Houlette",
+    "Luzerne",
+    "Hémérocalle",
+    "Trèfle",
+    "Angélique",
+    "Canard",
+    "Mélisse",
+    "Fromental",
+    "Martagon",
+    "Serpolet",
+    "Faux",
+    "Fraise",
+    "Bétoine",
+    "Pois",
+    "Acacia",
+    "Caille",
+    "Œillet",
+    "Sureau",
+    "Pavot",
+    "Tilleul",
+    "Fourche",
+    "Barbeau",
+    "Camomille",
+    "Chèvrefeuille",
+    "caille-lait",
+    "Tanche",
+    "Jasmin",
+    "Verveine",
+    "Thym",
+    "Pivoine",
+    "Chariot",
+    "Seigle",
+    "Avoine",
+    "Oignon",
+    "Véronique",
+    "Mulet",
+    "Romarin",
+    "Concombre",
+    "Échalote",
+    "Absinthe",
+    "Faucille",
+    "Coriandre",
+    "Artichaut",
+    "Girofle",
+    "Lavande",
+    "Chamois",
+    "Tabac",
+    "Groseille",
+    "Gesse",
+    "Cerise",
+    "Parc",
+    "Menthe",
+    "Cumin",
+    "Haricot",
+    "Orcanète",
+    "Pintade",
+    "Sauge",
+    "Ail",
+    "Vesce",
+    "Blé",
+    "Chalémie",
+    "Épeautre",
+    "Bouillon blanc",
+    "Melon",
+    "Ivraie",
+    "Bélier",
+    "Prêle",
+    "Armoise",
+    "Carthame",
+    "Mûre",
+    "Arrosoir",
+    "Panis",
+    "Salicorne",
+    "Abricot",
+    "Basilic",
+    "Brebis",
+    "Guimauve",
+    "Lin",
+    "Amande",
+    "Gentiane",
+    "Écluse",
+    "Carline",
+    "Câprier",
+    "Lentille",
+    "Aunée",
+    "Loutre",
+    "Myrte",
+    "Colza",
+    "Lupin",
+    "Coton",
+    "Moulin",
+    "Prune",
+    "Millet",
+    "Lycoperdon",
+    "Escourgeon",
+    "Saumon",
+    "Tubéreuse",
+    "Sucrion",
+    "Apocyn",
+    "Réglisse",
+    "Échelle",
+    "Pastèque",
+    "Fenouil",
+    "Épine vinette",
+    "Noix",
+    "Truite",
+    "Citron",
+    "Cardère",
+    "Nerprun",
+    "Tagette",
+    "Hotte",
+    "Églantine",
+    "Noisette",
+    "Houblon",
+    "Sorgho",
+    "Écrevisse",
+    "Bigarade",
+    "Verge d’or",
+    "Maïs",
+    "Marron",
+    "Panier",
+    "La Fête de la Vertu",
+    "La Fête du Génie",
+    "La Fête du Travail",
+    "La Fête de l'Opinion",
+    "La Fête des Récompenses",
+    "La Fête de la Révolution"
+  ]
+
+  DECADE_DAYS = [
+    "Primidi",
+    "Duodi",
+    "Tridi",
+    "Quartidi",
+    "Quintidi",
+    "Sextidi",
+    "Septidi",
+    "Octidi",
+    "Nonidi",
+    "Décadi"
+  ]
+
+  MONTHS = [
+    "Vendémiaire",
+    "Brumaire",
+    "Frimaire",
+    "Nivôse",
+    "Pluviôse",
+    "Ventôse",
+    "Germinal",
+    "Floréal",
+    "Prairial",
+    "Messidor",
+    "Thermidor",
+    "Fructidor",
+    "sans-culottides"
+  ]
+
+  private
+    def to_rep
+      y = gregorian_date.year - 1792
+      m = (gregorian_date.month == 9  ? 1: gregorian_date.month - 9)
+      d = (gregorian_date.day   == 22 ? 1: gregorian_date.day - 22)
+
+    end
+
+end
+
+
+Date.class_eval do
+  include RepublicanCalendar
 end
