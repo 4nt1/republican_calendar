@@ -27,7 +27,20 @@ class Date::Republican
   attr_accessor :year, :month, :day
 
   def initialize(year=1, month=1, day=1)
-    explanation = if year < 1
+    if year.is_a?(String)
+      str = year
+      data = year.match(DATE_REGEXP)
+      day, month, year = [data[:day], data[:month], data[:year]].map {|s| Integer(s) rescue nil}
+      if month.nil?
+        guess = Date::Republican::ABBR_MONTHS.map{|m| /#{m}/}.map{|r| str.scan(r)}.flatten.compact.first
+        month = Date::Republican::ABBR_MONTHS.index(guess)
+        month += 1 if !month.nil?
+      end
+    end
+
+    explanation = if [year, month, day].any?(&:nil?)
+      'could not guess republican date from String'
+    elsif year < 1
       'no year 0 in the republican calendar'
     elsif !month.between?(1,13)
       '13 months in the republican calendar'
@@ -77,6 +90,8 @@ class Date::Republican
     end
     DAY_ONE + days.to_i
   end
+
+  DATE_REGEXP =/\A(?<day>[0-9]{1,2})(\s+|-+|\/+)(?<month>[a-zA-Z]*|[0-9]*)(\s+|-+|\/+)([a-zA-Z]*)(\s*)(?<year>[0-9]*)/i
 
   FRENCH_REPUBLIC = 2375840
 
