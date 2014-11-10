@@ -28,11 +28,11 @@ class Date::Republican
 
   def initialize(year=1, month=1, day=1)
     if year.is_a?(String)
-      str = year
+      str = year.downcase
       data = year.match(DATE_REGEXP)
       day, month, year = [data[:day], data[:month], data[:year]].map {|s| Integer(s) rescue nil}
       if month.nil?
-        guess = Date::Republican::ABBR_MONTHS.map{|m| /#{m}/}.map{|r| str.scan(r)}.flatten.compact.first
+        guess = Date::Republican::ABBR_MONTHS.map{|m| /#{m}/i}.map{|r| str.scan(r)}.flatten.compact.first
         month = Date::Republican::ABBR_MONTHS.index(guess)
         month += 1 if !month.nil?
       end
