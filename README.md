@@ -32,22 +32,24 @@ Date::Republican.new
 Date.new(1799, 11, 9).to_republican.to_s
 => "18 Brumaire an 8"
 
-# Make the conversion in both sides
+# Make the conversion in both sides (from Date to Date::Republican and vice versa)
 Date.new(1799, 11, 9).to_republican.to_gregorian
 => #<Date: 1799-11-09 ((2378444j,0s,0n),+0s,2299161j)>
+
+# Add or substract days
+Date::Republican.new + 200
+=> #<Date::Republican:0x007f9e4ba5c0d0 @day=21, @month=7, @year=1>
+
+# Check if a republican year is sextil
+Date::Republican.new(3).sextil?
+=> true
+
+
 ```
 
+## TODO
 
-
-The gem ads some methods to the Date class :
-
-```ruby
-
-# return a Date::Republican instance
-Date.today.to_republican
-=> #<Date::Republican:0x007fb7645ace90 @day=15, @month=2, @year=223>
-
-```
+Improve the Date::Republican#strftime method (actually a simple #to_s).
 
 ## Contributing
 

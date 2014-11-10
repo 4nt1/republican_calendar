@@ -7,8 +7,9 @@ module RepublicanCalendar
 
   def to_republican
     days = self - Date::Republican::DAY_ONE
+
     [Date.new(1800, 2, 28), Date.new(1900, 2, 28), Date.new(2100, 2, 28)].each do |date|
-      days += 1 if (Date::Republican::DAY_ONE + days.to_i) > date
+      days -= 1 if (Date::Republican::DAY_ONE + days.to_i) > date
     end
     year = 1
     while days >= (year_days = Date::Republican.new(year).sextil? ? 366 : 365)
