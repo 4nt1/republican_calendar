@@ -23,7 +23,7 @@ end
 
 class Date::Republican
 
-  attr_accessor :day, :month, :year
+  attr_accessor :year, :month, :day
 
   def initialize(year=1, month=1, day=1)
     explanation = if year < 1
@@ -68,7 +68,6 @@ class Date::Republican
     days = 0
     (1..(year - 1)).each do |y|
       days += Date::Republican.sextil?(y) ? 366 : 365
-      puts "l'an #{y} a #{Date::Republican.sextil?(y) ? 366 : 365} jours"
     end
     days += (month - 1) * 30
     days += (day - 1)
