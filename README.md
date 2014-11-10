@@ -39,7 +39,7 @@ Date::Republican.new("18 Brumaire an 8")
 Date::Republican.new(8, 2, 18).to_s
 => "18 Brumaire an 8"
 
-# Make the conversion in both sides (from Date to Date::Republican and vice versa)
+# Make the conversion in both ways (from Date to Date::Republican and vice versa)
 Date.new(1799, 11, 9).to_republican.to_gregorian
 => #<Date: 1799-11-09 ((2378444j,0s,0n),+0s,2299161j)>
 

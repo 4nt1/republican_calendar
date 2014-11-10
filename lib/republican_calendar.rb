@@ -60,7 +60,7 @@ class Date::Republican
   end
 
   def sextil?
-    [3, 7, 11, 15, 20].include?(year) || (Date.new(1791 + year).leap? && !year.between?(1,20))
+    self.class.sextil?(year)
   end
 
 
