@@ -4,68 +4,83 @@ require 'byebug'
 
 module RepublicanCalendar
 
-  def self.included(base)
-    base.extend(ClassMethods)
-  end
-
-  module ClassMethods
-
-  end
-
-  # number of days since first day of the first republic
-  def republican
-    (self - Date::Republican::DAY_ONE).to_i
-  end
-
-  def sextil?
-    [3, 7, 11, 15, 20].include?(self.year - Date::Republican::DAY_ONE.year) || self.leap?
-  end
 
   def to_republican
     days = self - Date::Republican::DAY_ONE
+    [Date.new(1800, 2, 28), Date.new(1900, 2, 28), Date.new(2100, 2, 28)].each do |date|
+      days += 1 if (Date::Republican::DAY_ONE + days.to_i) > date
+    end
     year = 1
-    while days >= (year_days = Date.new(year).sextil? ? 366 : 365)
+    while days >= (year_days = Date::Republican.new(year).sextil? ? 366 : 365)
       days -= year_days
       year +=1
     end
-    month = 1 + days / 30
-    day = 1 + days % 30
+    month = 1 + (days / 30).to_i
+    day = 1 + (days % 30).to_i
     Date::Republican.new(year, month, day)
   end
 end
 
 class Date::Republican
 
-  attr_reader :gregorian_date
+  attr_accessor :day, :month, :year
 
   def initialize(year=1, month=1, day=1)
+    explanation = if year < 1
+      'no year 0 in the republican calendar'
+    elsif !month.between?(1,13)
+      '13 months in the republican calendar'
+    elsif !day.between?(1,30) && !month.between?(1,12)
+      '30 days a month in the republican calendar'
+     elsif day > (Date::Republican.sextil?(year) ? 6 : 5 ) && month == 13
+      'this year the thirteenth month has not so much days'
+    end
+    raise ArgumentError.new("invalid date #{explanation}") if explanation
     @day              = day
     @month            = month
     @year             = year
-    @gregorian_date   = Date.new(year, month, day)
   end
 
-  def strftime
-
-  end
-
-  def +(date)
-
-  end
-
-  def -(date)
-
-  end
-
-  def to_date
-
+  def self.sextil?(year)
+    [3, 7, 11, 15, 20].include?(year) || (Date.new(1791 + year).leap? && !year.between?(1,20))
   end
 
   def sextil?
-
+    [3, 7, 11, 15, 20].include?(year) || (Date.new(1791 + year).leap? && !year.between?(1,20))
   end
 
-  DAY_ONE = Date.new(1792, 9, 22)
+
+  def strftime(format='%F')
+    "#{day} #{MONTHS[month - 1]} an #{year}"
+  end
+
+  def to_s
+    strftime
+  end
+
+  [:+, :-].each do |meth|
+    define_method meth do |nb|
+      to_gregorian.send(meth, nb).to_republican
+    end
+  end
+
+  def to_gregorian
+    days = 0
+    (1..(year - 1)).each do |y|
+      days += Date::Republican.sextil?(y) ? 366 : 365
+      puts "l'an #{y} a #{Date::Republican.sextil?(y) ? 366 : 365} jours"
+    end
+    days += (month - 1) * 30
+    days += (day - 1)
+    [Date.new(1800, 2, 28), Date.new(1900, 2, 28), Date.new(2100, 2, 28)].each do |date|
+      days += 1 if (DAY_ONE + days.to_i) > date
+    end
+    DAY_ONE + days.to_i
+  end
+
+  FRENCH_REPUBLIC = 2375840
+
+  DAY_ONE = Date.jd(FRENCH_REPUBLIC)
 
   DAYS = [
     "Raisin",
@@ -449,6 +464,8 @@ class Date::Republican
     "Décadi"
   ]
 
+  ABBR_DECADE_DAYS = DECADE_DAYS.map {|day| day.downcase[0..2]}
+
   MONTHS = [
     "Vendémiaire",
     "Brumaire",
@@ -465,13 +482,9 @@ class Date::Republican
     "sans-culottides"
   ]
 
-  private
-    def to_rep
-      y = gregorian_date.year - 1792
-      m = (gregorian_date.month == 9  ? 1: gregorian_date.month - 9)
-      d = (gregorian_date.day   == 22 ? 1: gregorian_date.day - 22)
-
-    end
+  ABBR_MONTHS = MONTHS.map do |month|
+    ["Vendémiaire", "Ventôse"].include?(month) ? "#{month.downcase[0..1]}#{month.downcase[3]}" : month.downcase[0..2]
+  end
 
 end
 
