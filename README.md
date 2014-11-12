@@ -1,8 +1,12 @@
 # RepublicanCalendar
 
-The gem give the ability to use the French republican (French revolutionnary) calendar.
+The gem give the ability to use the French republican (French revolutionary) calendar.
+
 This calendar was used from the 22 september 1792 until the first of january 1806 in France.
+
 The calendar is accurate between these two dates.
+
+Although it's kind of nonsense of using the calendar after the 01-01-1806, there's a debate on how dates would have been calculated. I choose to stop using sextil years after 1803 (year 11) and use leap years. Some will think it's not accurate, but who really needs a revolutionary date after 1806 ?
 
 
 ## Installation

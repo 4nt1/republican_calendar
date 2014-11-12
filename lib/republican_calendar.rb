@@ -14,7 +14,19 @@ class Date::Republican
   attr_accessor :year, :month, :day
 
   def initialize(year=1, month=1, day=1)
-    explanation = ERROR_EXPLAINER.call(year, month, day)
+
+    explanation = if [year, month, day].any?(&:nil?)
+      'could not guess republican date from String'
+    elsif year < 1
+      'no year 0 in the republican calendar'
+    elsif !month.between?(1,13)
+      '13 months in the republican calendar'
+    elsif !day.between?(1,30) && !month.between?(1,12)
+      '30 days a month in the republican calendar'
+     elsif day > (Date::Republican.sextil?(year) ? 6 : 5 ) && month == 13
+      'this year the thirteenth month has not so much days'
+    end
+
     raise ArgumentError.new("invalid date #{explanation}") if explanation
     @day              = day
     @month            = month
@@ -94,20 +106,6 @@ class Date::Republican
 
   def to_gregorian
     DAY_ONE + to_days
-  end
-
-  ERROR_EXPLAINER = -> (year, month, day) do
-    explanation = if [year, month, day].any?(&:nil?)
-      'could not guess republican date from String'
-    elsif year < 1
-      'no year 0 in the republican calendar'
-    elsif !month.between?(1,13)
-      '13 months in the republican calendar'
-    elsif !day.between?(1,30) && !month.between?(1,12)
-      '30 days a month in the republican calendar'
-     elsif day > (Date::Republican.sextil?(year) ? 6 : 5 ) && month == 13
-      'this year the thirteenth month has not so much days'
-    end
   end
 
   SANITIZER = -> (str) { str.gsub('é', 'e').gsub('ô', 'o').downcase }
