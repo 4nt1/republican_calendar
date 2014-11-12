@@ -2,6 +2,7 @@
 
 The gem give the ability to use the French republican (French revolutionnary) calendar.
 This calendar was used from the 22 september 1792 until the first of january 1806 in France.
+The calendar is accurate between these two dates.
 
 
 ## Installation
@@ -28,12 +29,16 @@ The gem offers a new class Date::Republican to represent a given moment from the
 Date::Republican.new
 => #<Date::Republican:0x007fb765185870 @day=1, @month=1, @year=1>
 
+# a republican date before the 22-09-1792 is invalid
+Date::Republican.new(-1, 1, 1)
+=> ArgumentError: invalid date no year 0 in the republican calendar
+
 # Coup of 18 brumaire
 Date.new(1799, 11, 9).to_republican.to_s
 => "18 Brumaire an 8"
 
 # Make new Date::Republican from numeric or string values
-Date::Republican.new("18 Brumaire an 8")
+Date::Republican.parse("18 Brumaire an 8")
 => #<Date::Republican:0x007ffae1514b20 @day=18, @month=2, @year=8>
 
 Date::Republican.new(8, 2, 18).to_s
@@ -50,6 +55,10 @@ Date::Republican.new + 200
 # Check if a republican year is sextil
 Date::Republican.new(3).sextil?
 => true
+
+# Date::Republican includes Comparable
+Date::Republican.new(4, 1, 1) > Date::Republican.new(4, 1, 2)
+=> false
 
 
 ```

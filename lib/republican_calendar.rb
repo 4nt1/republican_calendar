@@ -1,43 +1,102 @@
-# require "republican_calendar/version"
+require "republican_calendar/version"
 require 'date'
-require 'byebug'
-
 module RepublicanCalendar
 
 
   def to_republican
     days = self - Date::Republican::DAY_ONE
-
-    [Date.new(1800, 2, 28), Date.new(1900, 2, 28), Date.new(2100, 2, 28)].each do |date|
-      days -= 1 if (Date::Republican::DAY_ONE + days.to_i) > date
-    end
-    year = 1
-    while days >= (year_days = Date::Republican.new(year).sextil? ? 366 : 365)
-      days -= year_days
-      year +=1
-    end
-    month = 1 + (days / 30).to_i
-    day = 1 + (days % 30).to_i
-    Date::Republican.new(year, month, day)
+    Date::Republican.from_days(days)
   end
 end
 
 class Date::Republican
-
+  include Comparable
   attr_accessor :year, :month, :day
 
   def initialize(year=1, month=1, day=1)
-    if year.is_a?(String)
-      str = year.downcase
-      data = year.match(DATE_REGEXP)
+    explanation = ERROR_EXPLAINER.call(year, month, day)
+    raise ArgumentError.new("invalid date #{explanation}") if explanation
+    @day              = day
+    @month            = month
+    @year             = year
+  end
+
+  def self.parse(str)
+    if str.is_a?(String)
+      str = SANITIZER.call(str)
+      data = str.match(DATE_REGEXP)
       day, month, year = [data[:day], data[:month], data[:year]].map {|s| Integer(s) rescue nil}
       if month.nil?
         guess = Date::Republican::ABBR_MONTHS.map{|m| /#{m}/i}.map{|r| str.scan(r)}.flatten.compact.first
         month = Date::Republican::ABBR_MONTHS.index(guess)
         month += 1 if !month.nil?
       end
+      if month.nil?
+        guess = Date::Republican::MONTHS.map{|m| /#{SANITIZER.call(m)}/i}.map{|r| str.scan(r)}.flatten.compact.first
+        month = Date::Republican::MONTHS.map {|m| SANITIZER.call(m) }.index(guess)
+        month += 1 if !month.nil?
+      end
     end
+    new(year, month, day)
+  end
 
+  def self.from_days(days)
+    year = 1
+    while days >= (year_days = sextil?(year) ? 366 : 365)
+      days -= year_days
+      year +=1
+    end
+    month = 1 + (days / 30).to_i
+    day   = 1 + (days % 30).to_i
+    new(year, month, day)
+  end
+
+  def self.sextil?(year)
+    [3, 7, 11].include?(year) || (Date.new(1791 + year).leap? && !year.between?(1,11))
+  end
+
+  def to_days
+    days = 0
+    (1..(year - 1)).each do |y|
+      days += Date::Republican.sextil?(y) ? 366 : 365
+    end
+    days += (month - 1) * 30
+    days += (day - 1)
+  end
+
+  def sextil?
+    self.class.sextil?(year)
+  end
+
+  def strftime(format='%F')
+    "#{day} #{MONTHS[month - 1]} an #{year}"
+  end
+
+  def to_s
+    strftime
+  end
+
+  def <=>(date)
+    if year == date.year && month == date.month && day == date.day
+      0
+    elsif year > date.year || (year == date.year && month > date.month) ||  (year == date.year && month == date.month && day > date.day)
+      1
+    else
+      -1
+    end
+  end
+
+  [:+, :-].each do |meth|
+    define_method meth do |nb|
+      Date::Republican.from_days(to_days.send(meth, nb))
+    end
+  end
+
+  def to_gregorian
+    DAY_ONE + to_days
+  end
+
+  ERROR_EXPLAINER = -> (year, month, day) do
     explanation = if [year, month, day].any?(&:nil?)
       'could not guess republican date from String'
     elsif year < 1
@@ -49,47 +108,9 @@ class Date::Republican
      elsif day > (Date::Republican.sextil?(year) ? 6 : 5 ) && month == 13
       'this year the thirteenth month has not so much days'
     end
-    raise ArgumentError.new("invalid date #{explanation}") if explanation
-    @day              = day
-    @month            = month
-    @year             = year
   end
 
-  def self.sextil?(year)
-    [3, 7, 11, 15, 20].include?(year) || (Date.new(1791 + year).leap? && !year.between?(1,20))
-  end
-
-  def sextil?
-    self.class.sextil?(year)
-  end
-
-
-  def strftime(format='%F')
-    "#{day} #{MONTHS[month - 1]} an #{year}"
-  end
-
-  def to_s
-    strftime
-  end
-
-  [:+, :-].each do |meth|
-    define_method meth do |nb|
-      to_gregorian.send(meth, nb).to_republican
-    end
-  end
-
-  def to_gregorian
-    days = 0
-    (1..(year - 1)).each do |y|
-      days += Date::Republican.sextil?(y) ? 366 : 365
-    end
-    days += (month - 1) * 30
-    days += (day - 1)
-    [Date.new(1800, 2, 28), Date.new(1900, 2, 28), Date.new(2100, 2, 28)].each do |date|
-      days += 1 if (DAY_ONE + days.to_i) > date
-    end
-    DAY_ONE + days.to_i
-  end
+  SANITIZER = -> (str) { str.gsub('é', 'e').gsub('ô', 'o').downcase }
 
   DATE_REGEXP =/\A(?<day>[0-9]{1,2})(\s+|-+|\/+)(?<month>[a-zA-Z]*|[0-9]*)(\s+|-+|\/+)([a-zA-Z]*)(\s*)(?<year>[0-9]*)/i
 
@@ -502,7 +523,6 @@ class Date::Republican
   end
 
 end
-
 
 Date.class_eval do
   include RepublicanCalendar
