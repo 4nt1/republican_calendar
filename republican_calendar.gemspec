@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = RepublicanCalendar::VERSION
   spec.authors       = ["4nt1"]
   spec.email         = ["antoinemary@hotmail.fr"]
-  spec.summary       = %q{The gem give the ability to use the French republican (French revolutionary) calendar.}
+  spec.summary       = %q{use the French republican calendar}
   spec.description   = %q{The gem give the ability to use the French republican (French revolutionary) calendar.}
   spec.homepage      = "https://github.com/4nt1/republican_calendar"
   spec.license       = "MIT"
